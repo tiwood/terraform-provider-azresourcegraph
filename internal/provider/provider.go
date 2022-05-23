@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/resourcegraph/mgmt/2021-03-01/resourcegraph"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
@@ -72,6 +73,9 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 
 		client := resourcegraph.New()
 		client.Authorizer = authorizer
+		client.PollingDelay = 20
+		client.RetryAttempts = 20
+		client.RetryDuration = 5 * time.Second
 
 		return &clients{
 			resourceGraph: &client,
