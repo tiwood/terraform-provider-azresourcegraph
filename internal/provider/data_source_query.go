@@ -90,7 +90,7 @@ func dataSourceQueryRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return diag.Errorf("Failed to marshal query results to JSON string: %v", err)
+		return diag.Errorf("failed to marshal query results to JSON string: %v", err)
 	}
 
 	d.SetId(uuid.New().String())
@@ -101,29 +101,19 @@ func dataSourceQueryRead(ctx context.Context, d *schema.ResourceData, meta inter
 
 func doResourceQuery(ctx context.Context, client *resourcegraph.BaseClient, queryRequest resourcegraph.QueryRequest) (data interface{}, err error) {
 	var results []interface{}
-	resp, err := client.Resources(ctx, queryRequest)
-	if err != nil {
-		return nil, fmt.Errorf("Query failed: %v", err)
-	}
-	results = append(results, resp.Data)
 
-	if resp.SkipToken != nil {
-		skipToken := resp.SkipToken
-		for {
-			deltaQueryRequest := queryRequest
-			deltaQueryRequest.Options.SkipToken = skipToken
-			deltaResp, err := client.Resources(ctx, queryRequest)
-			if err != nil {
-				return nil, fmt.Errorf("Delta query failed: %v", err)
-			}
-			results = append(results, deltaResp.Data)
-
-			if deltaResp.SkipToken == nil {
-				break
-			}
-
-			skipToken = deltaResp.SkipToken
+	for {
+		resp, err := client.Resources(ctx, queryRequest)
+		if err != nil {
+			return nil, fmt.Errorf("query failed: %v", err)
 		}
+		if *resp.Count > 0 && resp.Data != nil {
+			results = append(results, (resp.Data.([]interface{}))...)
+		}
+		if resp.SkipToken == nil {
+			break
+		}
+		queryRequest.Options.SkipToken = resp.SkipToken
 	}
 
 	return results, nil
