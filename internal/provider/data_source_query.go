@@ -107,7 +107,7 @@ func doResourceQuery(ctx context.Context, client *resourcegraph.BaseClient, quer
 		if err != nil {
 			return nil, fmt.Errorf("query failed: %v", err)
 		}
-		if *resp.Count > 0 && resp.Data != nil {
+		if resp.Count != nil && *resp.Count > 0 && resp.Data != nil {
 			results = append(results, (resp.Data.([]interface{}))...)
 		}
 		if resp.SkipToken == nil {
