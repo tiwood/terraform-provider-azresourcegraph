@@ -6,7 +6,7 @@ data "azresourcegraph_query" "all_resource_ids" {
 
 output "all_resource_ids" {
   value = [
-    for obj in jsondecode(data.azresourcegraph_query.all_resource_ids.result)[0] : obj.id
+    for obj in jsondecode(data.azresourcegraph_query.all_resource_ids.result) : obj.id
   ]
 }
 
