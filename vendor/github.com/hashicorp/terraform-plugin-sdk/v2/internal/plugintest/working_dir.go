@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 	tfjson "github.com/hashicorp/terraform-json"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/internal/logging"
 )
 
@@ -155,7 +156,9 @@ func (wd *WorkingDir) Init(ctx context.Context) error {
 
 	logging.HelperResourceTrace(ctx, "Calling Terraform CLI init command")
 
-	err := wd.tf.Init(context.Background(), tfexec.Reattach(wd.reattachInfo))
+	// -upgrade=true is required for per-TestStep provider version changes
+	// e.g. TestTest_TestStep_ExternalProviders_DifferentVersions
+	err := wd.tf.Init(context.Background(), tfexec.Reattach(wd.reattachInfo), tfexec.Upgrade(true))
 
 	logging.HelperResourceTrace(ctx, "Called Terraform CLI init command")
 
@@ -297,6 +300,17 @@ func (wd *WorkingDir) Import(ctx context.Context, resource, id string) error {
 	err := wd.tf.Import(context.Background(), resource, id, tfexec.Config(wd.baseDir), tfexec.Reattach(wd.reattachInfo))
 
 	logging.HelperResourceTrace(ctx, "Called Terraform CLI import command")
+
+	return err
+}
+
+// Taint runs terraform taint
+func (wd *WorkingDir) Taint(ctx context.Context, address string) error {
+	logging.HelperResourceTrace(ctx, "Calling Terraform CLI taint command")
+
+	err := wd.tf.Taint(context.Background(), address)
+
+	logging.HelperResourceTrace(ctx, "Called Terraform CLI taint command")
 
 	return err
 }
