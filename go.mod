@@ -3,7 +3,7 @@ module github.com/tiwood/terraform-provider-azresourcegraph
 go 1.17
 
 require (
-	github.com/Azure/azure-sdk-for-go v64.0.0+incompatible
+	github.com/Azure/azure-sdk-for-go v67.1.0+incompatible
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.11
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/terraform-plugin-docs v0.8.1
