@@ -1,4 +1,4 @@
-# github.com/Azure/azure-sdk-for-go v64.0.0+incompatible
+# github.com/Azure/azure-sdk-for-go v67.2.0+incompatible
 ## explicit
 github.com/Azure/azure-sdk-for-go/services/resourcegraph/mgmt/2021-03-01/resourcegraph
 github.com/Azure/azure-sdk-for-go/version
