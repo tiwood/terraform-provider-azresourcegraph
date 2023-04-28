@@ -28,3 +28,5 @@ provider "azresourcegraph" {
 - `client_id` (String) The Client ID which should be used. This can also be sourced from the `AZRGRAPH_CLIENT_ID` Environment Variable.
 - `client_secret` (String, Sensitive) The Client Secret which should be used. This can also be sourced from the `AZRGRAPH_CLIENT_SECRET` Environment Variable.
 - `tenant_id` (String) The Tenant ID which should be used. This can also be sourced from the `AZRGRAPH_TENANT_ID` Environment Variable.
+
+~> **Note:** When provider attributes for `client_id`, `client_secret` or `tenant_id` are not set, the provider will fallback on using the Azure CLI token credential if it is available.

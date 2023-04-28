@@ -58,24 +58,35 @@ type clients struct {
 
 func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		var resource = "https://management.azure.com"
+
 		tenantID := d.Get("tenant_id").(string)
 		clientID := d.Get("client_id").(string)
 		clientSecret := d.Get("client_secret").(string)
 
-		clientCredentialCfg := auth.NewClientCredentialsConfig(clientID, clientSecret, tenantID)
-		clientCredentialCfg.Resource = "https://management.azure.com"
-
-		authorizer, err := clientCredentialCfg.Authorizer()
-		if err != nil {
-			diags = append(diags, diag.Errorf("unable to create autorest authorizer: %v", err)...)
-			return nil, diags
-		}
-
 		client := resourcegraph.New()
-		client.Authorizer = authorizer
 		client.PollingDelay = 20
 		client.RetryAttempts = 20
 		client.RetryDuration = 5 * time.Second
+
+		if clientID == "" || clientSecret == "" || tenantID == "" {
+			authorizer, err := auth.NewAuthorizerFromCLIWithResource(resource)
+			if err != nil {
+				diags = append(diags, diag.Errorf("Failed to create authorizer from CLI: %v", err)...)
+				return nil, diags
+			}
+			client.Authorizer = authorizer
+		} else {
+			clientCredentialCfg := auth.NewClientCredentialsConfig(clientID, clientSecret, tenantID)
+			clientCredentialCfg.Resource = resource
+			authorizer, err := clientCredentialCfg.Authorizer()
+
+			if err != nil {
+				diags = append(diags, diag.Errorf("Failed to create authorizer with credentials: %v", err)...)
+				return nil, diags
+			}
+			client.Authorizer = authorizer
+		}
 
 		return &clients{
 			resourceGraph: &client,
