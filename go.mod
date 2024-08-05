@@ -1,6 +1,6 @@
 module github.com/tiwood/terraform-provider-azresourcegraph
 
-go 1.17
+go 1.21
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.9.0
