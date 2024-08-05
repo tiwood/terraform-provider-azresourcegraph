@@ -38,6 +38,4 @@ provider "azresourcegraph" {
 - `client_id` (String) The Client ID which should be used. This can also be sourced from the `AZRGRAPH_CLIENT_ID` Environment Variable.
 - `client_secret` (String, Sensitive) The Client Secret which should be used. This can also be sourced from the `AZRGRAPH_CLIENT_SECRET` Environment Variable.
 - `tenant_id` (String) The Tenant ID which should be used. This can also be sourced from the `AZRGRAPH_TENANT_ID` Environment Variable.
-- `use_azure_default_credential` (Boolean) Use Azure Default Credential for authentication. If this is true, the provider will try to authenticate using the following mechanisms in order:
-Environment variables > Workload identity > Managed Identity > Azure CLI > Azure Developer CLI This can also be sourced from the `AZRGRAPH_USE_AZURE_DEFAULT_CREDENTIAL` Environment Variable. Defaults to true.
-Note, that the Client Secret flow will take precedence over the Azure Default Credential.
+- `use_azure_default_credential` (Boolean) Use Azure Default Credential for authentication. If this is true, the provider will try to authenticate using the following mechanisms in order:Environment variables > Workload identity > Managed Identity > Azure CLI > Azure Developer CLI This can also be sourced from the `AZRGRAPH_USE_AZURE_DEFAULT_CREDENTIAL` Environment Variable. Note, that the Client Secret flow will take precedence over the Azure Default Credential. Defaults to true.
