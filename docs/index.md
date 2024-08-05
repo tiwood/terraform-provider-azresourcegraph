@@ -13,10 +13,20 @@ and use the results together with other `Terraform` providers.
 ## Example Usage
 
 ```terraform
+# Authentication using Client Credentials
 provider "azresourcegraph" {
   tenant_id     = var.tenant_id
   client_id     = var.client_id
   client_secret = var.client_secret
+}
+
+# Authentication using Azure Default Credential
+# 1. Environment Variables
+# 2. Managed Identity
+# 3. Azure CLI
+# 4. Azure Developer CLI
+provider "azresourcegraph" {
+  use_azure_default_credential = true
 }
 ```
 
@@ -28,3 +38,6 @@ provider "azresourcegraph" {
 - `client_id` (String) The Client ID which should be used. This can also be sourced from the `AZRGRAPH_CLIENT_ID` Environment Variable.
 - `client_secret` (String, Sensitive) The Client Secret which should be used. This can also be sourced from the `AZRGRAPH_CLIENT_SECRET` Environment Variable.
 - `tenant_id` (String) The Tenant ID which should be used. This can also be sourced from the `AZRGRAPH_TENANT_ID` Environment Variable.
+- `use_azure_default_credential` (Boolean) Use Azure Default Credential for authentication. If this is true, the provider will try to authenticate using the following mechanisms in order:
+Environment variables > Workload identity > Managed Identity > Azure CLI > Azure Developer CLI This can also be sourced from the `AZRGRAPH_USE_AZURE_DEFAULT_CREDENTIAL` Environment Variable. Defaults to true.
+Note, that the Client Secret flow will take precedence over the Azure Default Credential.

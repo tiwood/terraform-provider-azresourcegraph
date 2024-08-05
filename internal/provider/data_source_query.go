@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Azure/azure-sdk-for-go/services/resourcegraph/mgmt/2021-03-01/resourcegraph"
+	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph"
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -56,34 +56,37 @@ func dataSourceQueryRead(ctx context.Context, d *schema.ResourceData, meta inter
 	client := meta.(*clients).resourceGraph
 	query := d.Get("query").(string)
 
-	opts := resourcegraph.QueryRequestOptions{
-		ResultFormat: resourcegraph.ResultFormatObjectArray,
+	format := armresourcegraph.ResultFormatObjectArray
+	opts := armresourcegraph.QueryRequestOptions{
+		ResultFormat: &format,
 	}
 
-	queryRequest := resourcegraph.QueryRequest{
+	queryRequest := armresourcegraph.QueryRequest{
 		Options: &opts,
 		Query:   &query,
 	}
 
 	if _, ok := d.GetOk("subscription_ids"); ok {
 		subscriptions := d.Get("subscription_ids").(*schema.Set).List()
-		subs := make([]string, len(subscriptions))
+		subs := make([]*string, len(subscriptions))
 		for i, v := range subscriptions {
-			subs[i] = v.(string)
+			sub := v.(string)
+			subs[i] = &sub
 		}
-		queryRequest.Subscriptions = &subs
+		queryRequest.Subscriptions = subs
 	}
 
 	if _, ok := d.GetOk("management_group_ids"); ok {
 		managementgroups := d.Get("management_group_ids").(*schema.Set).List()
-		grps := make([]string, len(managementgroups))
+		grps := make([]*string, len(managementgroups))
 		for i, v := range managementgroups {
-			grps[i] = v.(string)
+			grp := v.(string)
+			grps[i] = &grp
 		}
-		queryRequest.ManagementGroups = &grps
+		queryRequest.ManagementGroups = grps
 	}
 
-	data, err := doResourceQuery(ctx, client, queryRequest)
+	data, err := doResourceQuery(ctx, &client, queryRequest)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -94,16 +97,19 @@ func dataSourceQueryRead(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 
 	d.SetId(uuid.New().String())
-	d.Set("result", string(jsonData))
+	err = d.Set("result", string(jsonData))
+	if err != nil {
+		return diag.Errorf("failed to set query result: %v", err)
+	}
 
 	return nil
 }
 
-func doResourceQuery(ctx context.Context, client *resourcegraph.BaseClient, queryRequest resourcegraph.QueryRequest) (data interface{}, err error) {
+func doResourceQuery(ctx context.Context, client *armresourcegraph.Client, queryRequest armresourcegraph.QueryRequest) (data interface{}, err error) {
 	var results []interface{}
 
 	for {
-		resp, err := client.Resources(ctx, queryRequest)
+		resp, err := client.Resources(ctx, queryRequest, nil)
 		if err != nil {
 			return nil, fmt.Errorf("query failed: %v", err)
 		}
